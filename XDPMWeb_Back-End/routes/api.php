@@ -20,3 +20,6 @@ Route::get('/users/{id}', [UsersController::class, 'getById']);
 Route::post('/users', [UsersController::class, 'create']);
 Route::put('/users/{id}', [UsersController::class, 'update']);
 Route::delete('/users/{id}', [UsersController::class, 'delete']);
+
+
+Route::post('/register', [AuthController::class, 'register']);//Đăng ký tài khoản mới
