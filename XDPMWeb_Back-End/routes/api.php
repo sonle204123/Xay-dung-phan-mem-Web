@@ -23,3 +23,4 @@ Route::delete('/users/{id}', [UsersController::class, 'delete']);
 
 
 Route::post('/register', [AuthController::class, 'register']);//Đăng ký tài khoản mới
+Route::post('/login', [AuthController::class, 'login']);//Đăng nhập và nhận token

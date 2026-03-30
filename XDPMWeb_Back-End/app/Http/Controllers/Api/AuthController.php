@@ -27,4 +27,33 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Đăng ký thành công!'], 201);
     }
+
+    // 2. ĐĂNG NHẬP (LOGIN)
+    public function login(Request $request)
+    {
+        // Kiểm tra email và password gửi lên
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        // Tìm User theo email
+        $user = User::where('email', $request->email)->first();
+
+        // Kiểm tra xem User có tồn tại không và mật khẩu có khớp không
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Email hoặc mật khẩu không chính xác!'], 401);
+        }
+
+        // Tạo Token cho User
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Đăng nhập thành công!',
+            'access_token' => $token,
+            'user' => $user
+        ], 200);
+    }
+
+    
 }
