@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,8 +25,6 @@ Route::delete('/users/{id}', [UsersController::class, 'delete']);
 
 Route::post('/register', [AuthController::class, 'register']);//Đăng ký tài khoản mới
 Route::post('/login', [AuthController::class, 'login']);//Đăng nhập và nhận token
-
-
 
 // Nhóm các API BẮT BUỘC PHẢI ĐĂNG NHẬP (có token) mới gọi được
 Route::middleware('auth:sanctum')->group(function () {
