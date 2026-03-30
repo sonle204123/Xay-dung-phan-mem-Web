@@ -1,6 +1,5 @@
 import "./App.css";
 import Data from "./components/Data";
-
 import { Route, Routes } from "react-router-dom";
 import ListData from "./components/ListData";
 function App() {
