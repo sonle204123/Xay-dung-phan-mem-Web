@@ -24,7 +24,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password), // Bắt buộc mã hóa mật khẩu
             'fullname' => $request->fullname,
-            'role_id' => 2, // Giả sử 2 là role Khách hàng/Bệnh nhân
+            'role_id' => 2,
         ]);
 
         return response()->json(['message' => 'Đăng ký thành công!'], 201);
