@@ -1,16 +1,21 @@
 import "./App.css";
-import Data from "./components/Data";
 import { Route, Routes } from "react-router-dom";
-import ListData from "./components/ListData";
+import Header from "./components/Header/Header";
+import Layout from "./components/Layout/Layout.tsx";
+import Error from "./components/Error/Error.tsx";
+
 function App() {
-    return (
-        <>
-            <Routes>
-                <Route element={<Data></Data>} path="/"></Route>
-                <Route element={<ListData></ListData>} path="/users"></Route>
-            </Routes>
-        </>
-    );
+  return (
+    <>
+      <Routes>
+        <Route element={<Header />}>
+          <Route path="/" element={<Header />} />
+          
+        </Route>
+        <Route path="*" element={<Error/>} />
+      </Routes>
+    </>
+  );
 }
 
 export default App;
