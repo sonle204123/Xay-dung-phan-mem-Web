@@ -1,76 +1,121 @@
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-function SignIn() {
-  const signInSchema = Yup.object({
-    email: Yup.string().email("Email không hợp lệ").required("Vui lòng nhập email"),
-    password: Yup.string().min(6, "Mật khẩu ít nhất 6 ký tự").max(20, "Mật khẩu không được quá 20 ký tự").required("Vui lòng nhập mật khẩu"),
+import { useNavigate, Link } from "react-router-dom";
+import api from "../../Config/api"; 
+
+const SignIn: React.FC = () => {
+  const navigate = useNavigate();
+  const [serverMessage, setServerMessage] = useState({ type: "", text: "" });
+
+  const validationSchema = Yup.object({
+    fullname: Yup.string().required("Vui lòng nhập họ và tên"),
+    email: Yup.string().email("Email không đúng định dạng").required("Vui lòng nhập Email"),
+    password: Yup.string().min(6, "Mật khẩu phải ít nhất 6 ký tự").required("Vui lòng nhập mật khẩu"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password')], 'Mật khẩu xác nhận không khớp')
+      .required('Vui lòng xác nhận mật khẩu')
   });
 
   const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    validationSchema: signInSchema,
-    onSubmit: () => {
-      alert("Đăng nhập thành công!");
+    initialValues: { fullname: "", email: "", password: "", confirmPassword: "" },
+    validationSchema,
+    onSubmit: async (values) => {
+      try {
+        setServerMessage({ type: "", text: "" });
+        
+        // Gọi API Đăng ký. Gửi fullname, email và password xuống Database
+        await api.post('/register', {
+          fullname: values.fullname,
+          email: values.email,
+          password: values.password
+        });
+
+        setServerMessage({ type: "success", text: "Đăng ký thành công! Đang chuyển hướng..." });
+        
+        // Đăng ký xong thì tự động đẩy về trang Login sau 2 giây
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+
+      } catch (error: any) {
+        if (error.response && error.response.status === 400) {
+          setServerMessage({ type: "error", text: "Email này đã được sử dụng!" });
+        } else {
+          setServerMessage({ type: "error", text: "Lỗi hệ thống. Vui lòng thử lại sau." });
+        }
+      }
     },
   });
-  // console.log(formik.handleChange);
-  // console.log('Formik Object:', formik);
-  // console.log('Values hiện tại:', formik.values);
-  // console.log('Lỗi hiện tại:', formik.errors);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      \
-      <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Đăng nhập</h2>
-        <form action="" className="space-y-4" onSubmit={formik.handleSubmit}>
-          <div className="">
-            <label htmlFor="email" className="text-sm block font-medium text-gray-700 mb-1">
-              Email
-            </label>
+      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+        <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">Đăng Ký Tài Khoản</h2>
+
+        {serverMessage.text && (
+          <div className={`mb-4 p-3 rounded-lg text-sm text-center font-medium ${serverMessage.type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700'}`}>
+            {serverMessage.text}
+          </div>
+        )}
+
+        <form onSubmit={formik.handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Họ và Tên</label>
             <input
-              placeholder="Nhập email của bạn"
-              type="email"
-              name="email"
-              id="email"
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500  transition-colors}`}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.email}
+              type="text" name="fullname"
+              className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 transition-colors ${formik.touched.fullname && formik.errors.fullname ? "border-red-500" : "border-slate-300 bg-slate-50"}`}
+              placeholder="Nguyễn Văn A"
+              onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.fullname}
             />
-            <p>{formik.touched.email && formik.errors.email ? <p className="text-red-500 text-xs mt-1">{formik.errors.email}</p> : null}</p>
+            {formik.touched.fullname && formik.errors.fullname && <p className="text-red-500 text-xs mt-1">{formik.errors.fullname}</p>}
           </div>
 
-          <div className="">
-            <label htmlFor="password" className="text-sm block font-medium text-gray-700 mb-1">
-              Mật khẩu
-            </label>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
             <input
-              placeholder="Nhập mật khẩu của bạn"
-              {...formik.getFieldProps("password")}
-              type="password"
-              name="password"
-              id="password"
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500  transition-colors`}
+              type="email" name="email"
+              className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 transition-colors ${formik.touched.email && formik.errors.email ? "border-red-500" : "border-slate-300 bg-slate-50"}`}
+              placeholder="email@smilecare.com"
+              onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.email}
             />
-            <p>{formik.touched.password && formik.errors.password ? <p className="text-red-500 text-xs mt-1">{formik.errors.password}</p> : null}</p>
+            {formik.touched.email && formik.errors.email && <p className="text-red-500 text-xs mt-1">{formik.errors.email}</p>}
           </div>
-          <button type="submit" className="w-full bg-amber-300 hover:bg-amber-500 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 shadow-md mt-2">
-            Đăng Nhập
+          
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
+            <input
+              type="password" name="password"
+              className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 transition-colors ${formik.touched.password && formik.errors.password ? "border-red-500" : "border-slate-300 bg-slate-50"}`}
+              placeholder="••••••••"
+              onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.password}
+            />
+            {formik.touched.password && formik.errors.password && <p className="text-red-500 text-xs mt-1">{formik.errors.password}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Xác nhận mật khẩu</label>
+            <input
+              type="password" name="confirmPassword"
+              className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 transition-colors ${formik.touched.confirmPassword && formik.errors.confirmPassword ? "border-red-500" : "border-slate-300 bg-slate-50"}`}
+              placeholder="••••••••"
+              onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.confirmPassword}
+            />
+            {formik.touched.confirmPassword && formik.errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{formik.errors.confirmPassword}</p>}
+          </div>
+          
+          <button type="submit" disabled={formik.isSubmitting} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 shadow-md mt-4 disabled:opacity-50">
+            {formik.isSubmitting ? "Đang xử lý..." : "Đăng ký tài khoản"}
           </button>
         </form>
 
-        <p className="text-sm text-center text-gray-600 mt-4">
-          Chưa có tài khoản?
-          <a href="#" className="text-blue-400 hover:underline">
-            Đăng Ký Ngay{" "}
-          </a>
+        <p className="text-sm text-center text-slate-600 mt-6">
+          Đã có tài khoản?{" "}
+          <Link to="/login" className="text-yellow-600 font-bold hover:underline">Đăng nhập</Link>
         </p>
       </div>
     </div>
   );
-}
+};
 
 export default SignIn;
