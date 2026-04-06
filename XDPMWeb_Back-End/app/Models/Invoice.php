@@ -9,7 +9,7 @@ class Invoice extends Model
     protected $table = 'invoice';
     protected $primaryKey = 'invoice_id';
 
-    const CREATED_AT = 'createAt'; // Khớp với ERD
+    const CREATED_AT = 'createdAt'; // Khớp với ERD
     const UPDATED_AT = null;
 
     protected $fillable = [
