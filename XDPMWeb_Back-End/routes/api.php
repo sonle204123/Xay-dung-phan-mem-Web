@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\HistoryController;
+use App\Http\Controllers\Api\AppointmentController;
 
 
 /*
@@ -37,9 +38,18 @@ Route::get('/schedules/available', [ScheduleController::class, 'getAvailableSlot
 
 // Nhóm các API BẮT BUỘC PHẢI ĐĂNG NHẬP (có token) mới gọi được
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Lấy thông tin user đang đăng nhập
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
     
     // Đăng xuất
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Tính năng Đặt lịch (dành cho Khách hàng)
+    Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::get('/my-appointments', [AppointmentController::class, 'myAppointments']);
 
     // Quản lý Danh mục & Dịch vụ (dành cho Admin)
     Route::post('/categories', [CategoryController::class, 'store']);
@@ -56,4 +66,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Quản lý Hồ sơ khám bệnh (Tạo lịch sử + chi tiết)
     Route::post('/histories', [HistoryController::class, 'store']);
     Route::get('/histories/{id}', [HistoryController::class, 'show']);
+
+
 });
