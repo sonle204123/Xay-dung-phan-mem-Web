@@ -7,7 +7,6 @@ const Footer = () => {
   return (
     <footer className="bg-[#F8FAFC] pt-16 pb-8 px-4 md:px-16 lg:px-24 border-t border-gray-100">
       <div className="max-w-[1800px] mx-auto">
-        {/* --- PHẦN TRÊN: GRID 4 CỘT --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
@@ -18,21 +17,22 @@ const Footer = () => {
             </div>
 
             <p className="text-gray-500 text-sm leading-relaxed">
-              Your trusted medical directory for finding certified doctors, clinics, and hospitals—all in one place. Empowering patients. Connecting care.
+              Danh bạ y tế tin cậy của bạn để tìm kiếm bác sĩ, phòng khám và bệnh viện đã được chứng nhận—tất cả ở cùng một nơi. Trao quyền cho bệnh nhân. Kết nối dịch vụ chăm sóc.
             </p>
 
             <div className="relative flex items-center">
               <input
                 type="email"
-                placeholder="Email Address.."
+                placeholder="Địa chỉ Email.."
                 className="w-full bg-white py-3 pl-4 pr-32 rounded-full border border-gray-200 outline-none focus:border-blue-400 text-sm transition-all shadow-sm"
               />
-              <button className="absolute right-1 bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md">Subscribe</button>
+              <button className="absolute right-1 bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors shadow-md">
+                Đăng ký
+              </button>
             </div>
 
-            {/* Social Icons */}
             <div className="space-y-3">
-              <p className="text-sm font-bold text-gray-800">Follow Us On:</p>
+              <p className="text-sm font-bold text-gray-800">Theo dõi chúng tôi trên:</p>
               <div className="flex gap-3">
                 {[
                   { icon: "ri:twitter-x-line", bg: "bg-white text-gray-800" },
@@ -47,22 +47,37 @@ const Footer = () => {
               </div>
             </div>
           </div>
+
           <div>
-            <h4 className="text-lg font-bold text-blue-950 mb-6">Quick Links</h4>
+            <h4 className="text-lg font-bold text-blue-950 mb-6">Liên kết nhanh</h4>
             <ul className="space-y-4">
-              {["Home", "About Us", "Find a Doctor", "Blog", "Contact Us", "Testimonials"].map((link) => (
-                <li key={link}>
-                  <Link to="#" className="text-gray-500 hover:text-blue-600 text-sm transition-colors">
-                    {link}
+              {[
+                { name: "Trang chủ", path: "/" },
+                { name: "Về chúng tôi", path: "#" },
+                { name: "Tìm bác sĩ", path: "#" },
+                { name: "Tin tức", path: "#" },
+                { name: "Liên hệ", path: "#" },
+                { name: "Đánh giá", path: "#" }
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link to={link.path} className="text-gray-500 hover:text-blue-600 text-sm transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <h4 className="text-lg font-bold text-blue-950 mb-6">Category List</h4>
+            <h4 className="text-lg font-bold text-blue-950 mb-6">Danh mục chuyên khoa</h4>
             <ul className="space-y-4">
-              {["General Physicians", "Dentist", "Cardiologists", "Dermatologists", "Physiotherapists", "Labs & Diagnostics"].map((cat) => (
+              {[
+                "Bác sĩ tổng quát",
+                "Nha sĩ",
+                "Bác sĩ tim mạch",
+                "Bác sĩ da liễu",
+                "Vật lý trị liệu",
+                "Xét nghiệm & Chẩn đoán"
+              ].map((cat) => (
                 <li key={cat}>
                   <Link to="#" className="text-gray-500 hover:text-blue-600 text-sm transition-colors">
                     {cat}
@@ -71,8 +86,9 @@ const Footer = () => {
               ))}
             </ul>
           </div>
+
           <div>
-            <h4 className="text-lg font-bold text-blue-950 mb-6">Contact Information</h4>
+            <h4 className="text-lg font-bold text-blue-950 mb-6">Thông tin liên hệ</h4>
             <ul className="space-y-6">
               <li className="flex items-start gap-3">
                 <div className="mt-1 text-gray-600">
@@ -85,29 +101,32 @@ const Footer = () => {
                   <Icon icon="mdi:map-marker-outline" width="20" />
                 </div>
                 <span className="text-sm text-gray-500">
-                  123 Digital Lane,
+                  123 Đường Số 1,
                   <br />
-                  Marketing City, USA
+                  Quận 1, TP. Hồ Chí Minh
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="mt-1 text-gray-600 rotate-90">
                   <Icon icon="mdi:phone-outline" width="20" />
                 </div>
-                <span className="text-sm text-gray-500">123-456-7890</span>
+                <span className="text-sm text-gray-500">0123-456-789</span>
               </li>
             </ul>
           </div>
         </div>
+
         <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">Copyright {currentYear} Medxpert. All Rights Reserved</p>
+          <p className="text-gray-500 text-sm">
+            Bản quyền © {currentYear} Medxpert. Bảo lưu mọi quyền.
+          </p>
           <div className="flex gap-4 text-sm text-gray-500">
             <Link to="#" className="hover:text-blue-600">
-              Privacy Policy
+              Chính sách bảo mật
             </Link>
             <span>|</span>
             <Link to="#" className="hover:text-blue-600">
-              Terms & Condition
+              Điều khoản & Điều kiện
             </Link>
           </div>
         </div>

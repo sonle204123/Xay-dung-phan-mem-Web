@@ -25,17 +25,13 @@ function Header() {
     }
   }, []);
 
-  // 3. Hàm xử lý Đăng xuất
   const handleLogout = () => {
     if (window.confirm("Bạn có chắc muốn đăng xuất khỏi SmileCare?")) {
       localStorage.removeItem("isLoggedIn");
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
-      
       setIsLoggedIn(false);
       setUserName("");
-      
-      // Chuyển về trang chủ và load lại để đồng bộ dữ liệu
       navigate("/");
       window.location.reload();
     }
@@ -49,14 +45,13 @@ function Header() {
     { name: "Liên Hệ", path: "/lien-he" },
     { name: "Đặt Lịch", path: "/dat-lich" },
     { name: "Tin Tức", path: "/tin-tuc" },
-    { name: "Đánh Giá", path: "/danh-gia" },
+    { name: "Đánh Gía", path: "/danh-gia" },
   ];
 
   return (
     <header className="w-full">
-      {/* 1. TOP BAR */}
       <div className="bg-[#F26924]/90 py-2">
-        <div className="flex justify-between items-center max-w-[1800px] mx-auto px-4">
+        <div className="flex justify-between items-center max-w-[1800px] mx-auto ">
           <h2 className="text-white text-sm md:text-lg font-medium hidden sm:block italic">SmileCare – Kiến tạo nụ cười Việt</h2>
 
           <div className="flex flex-wrap items-center gap-4 text-white text-xs md:text-sm ml-auto">
@@ -86,13 +81,12 @@ function Header() {
         </div>
       </div>
 
-      {/* 2. MAIN NAV BAR */}
       <div className="bg-amber-100 shadow-md px-4 md:px-10 lg:px-20 relative">
         <div className="flex items-center justify-between max-w-[1800px] mx-auto h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/">
-              <img src="/assets/logo.jpg" alt="Logo" className="h-14 w-auto rounded-md object-cover shadow-sm" />
+              <img src="../../../public/favicon.ico" alt="Logo" className="h-14 w-auto rounded-md object-cover shadow-sm" />
             </Link>
           </div>
 
@@ -104,11 +98,9 @@ function Header() {
             ))}
           </nav>
 
-          {/* KHU VỰC ĐĂNG NHẬP / THÔNG TIN USER */}
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-3 border-l border-gray-400 pl-4">
               {isLoggedIn ? (
-                // --- Giao diện khi ĐÃ ĐĂNG NHẬP ---
                 <div className="flex items-center gap-4">
                   <div className="flex flex-col items-end">
                     <span className="text-xs text-gray-500 font-medium italic">Chào mừng,</span>
@@ -123,7 +115,6 @@ function Header() {
                   </button>
                 </div>
               ) : (
-                // --- Giao diện khi CHƯA ĐĂNG NHẬP ---
                 <>
                   <Link to="/login" className="flex items-center gap-1 text-sm font-bold hover:text-[#F26924]">
                     <Icon icon="mdi:user" width="20" />
@@ -135,15 +126,12 @@ function Header() {
                 </>
               )}
             </div>
-
-            {/* Mobile Menu Button */}
             <button className="lg:hidden text-gray-800 focus:outline-none" onClick={() => setIsOpen(!isOpen)}>
               <Icon icon={isOpen ? "mdi:close" : "mdi:menu"} width="32" />
             </button>
           </div>
         </div>
 
-        {/* 3. MOBILE MENU */}
         {isOpen && (
           <div className="lg:hidden absolute top-full left-0 w-full bg-white shadow-xl z-50 animate-fade-in-down border-t">
             <div className="flex flex-col p-4 space-y-3">

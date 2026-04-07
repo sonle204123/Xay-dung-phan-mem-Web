@@ -9,44 +9,41 @@ const Neighborhoods = () => {
   const doctors = [
     {
       id: 1,
-      name: "Al Aziziya",
-      location: "South Riyadh",
-      image: "https://png.pngtree.com/png-vector/20230928/ourmid/pngtree-young-afro-professional-doctor-png-image_10148632.png", // Thay bằng ảnh thật
-      avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+      name: "BS. Nguyễn Văn An",
+      location: "Khu vực Quận 7 (Nam Sài Gòn)",
+      // Ảnh bác sĩ nam chuyên nghiệp
+      image: "https://www.pngarts.com/files/3/Doctor-PNG-Image-with-Transparent-Background.png",
+      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
     },
     {
       id: 2,
-      name: "Dhahra Laban",
-      location: "West Riyadh",
-      image:
-        "https://static.vecteezy.com/system/resources/thumbnails/028/287/529/small_2x/portrait-of-a-female-doctor-with-a-stethoscope-on-a-white-background-healthcare-and-medical-concept-generative-ai-free-png.png",
-      avatar: "https://randomuser.me/api/portraits/women/2.jpg",
+      name: "BS. Lê Thị Mai",
+      location: "Khu vực Quận Tân Phú (Tây Sài Gòn)",
+      image: "https://www.pngarts.com/files/3/Female-Doctor-Transparent-Image.png",
+      avatar: "https://randomuser.me/api/portraits/women/44.jpg",
     },
-    {
-      id: 3,
-      name: "Al Malaz",
-      location: "Central Riyadh",
-      image: "https://static.vecteezy.com/system/resources/thumbnails/030/662/014/small_2x/handsome-doctor-over-isolated-white-background-generative-ai-free-png.png",
-      avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-    },
-    {
-      id: 4,
-      name: "Al Olaya",
-      location: "North Riyadh",
-      image: "https://png.pngtree.com/png-vector/20230928/ourmid/pngtree-young-afro-professional-doctor-png-image_10148632.png",
-      avatar: "https://randomuser.me/api/portraits/men/4.jpg",
-    },
+{
+    id: 3,
+    name: "BS. Trần Hoàng Nam",
+    location: "Khu vực Quận 1 (Trung tâm)",
+    image: "https://www.pngall.com/wp-content/uploads/2018/05/Doctor-Free-Download-PNG.png",
+    avatar: "https://randomuser.me/api/portraits/men/67.jpg",
+  },
+  {
+    id: 4,
+    name: "BS. Phạm Minh Đức",
+    location: "Khu vực Gò Vấp (Bắc Sài Gòn)",
+    image: "https://www.pngall.com/wp-content/uploads/2018/05/Doctor-PNG-File.png",
+    avatar: "https://randomuser.me/api/portraits/men/85.jpg",
+  },
   ];
-
   return (
     <section className="py-20 px-4 md:px-16 lg:px-24 bg-white relative">
       <div className="max-w-[1800px] mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#2B3467] mb-4">
-            Neighborhoods We <br /> Serve in Riyadh
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-[#2B3467] mb-4">Các khu vực chúng tôi phục vụ tại khu vực</h2>
           <p className="text-gray-500 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-            Experience healthcare without the hassle. Get fast medical support right where you are. Professional care delivered to your home with ease.
+            Trải nghiệm dịch vụ y tế không chút phiền hà. Nhận hỗ trợ y tế nhanh chóng ngay tại nơi bạn ở. Dịch vụ chăm sóc chuyên nghiệp được đưa đến tận nhà một cách dễ dàng.
           </p>
         </div>
         <div className="relative px-10">
