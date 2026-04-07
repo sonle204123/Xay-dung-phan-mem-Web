@@ -5,11 +5,11 @@ const MedicalServices = () => {
   const [activeService, setActiveService] = useState('Dialysis');
 
   const topServices = [
-    { id: 'Laboratory', name: 'Home Laboratory', icon: 'mdi:microscope' },
-    { id: 'Vaccine', name: 'Household vaccine', icon: 'mdi:vaccine' },
-    { id: 'Dialysis', name: 'Dialysis', icon: 'mdi:medical-bag' },
-    { id: 'Radiology', name: 'Household Radiology', icon: 'mdi:mri' },
-    { id: 'Visiting', name: 'Home visiting doctor', icon: 'mdi:doctor' },
+    { id: 'Laboratory', name: 'Xét nghiệm tại nhà', icon: 'mdi:microscope' },
+    { id: 'Vaccine', name: 'Tiêm chủng tại giae', icon: 'tabler:vaccine' },
+    { id: 'Dialysis', name: 'Lọc máu / Chạy thận nhân tạo', icon: 'mdi:medical-bag' },
+    { id: 'Radiology', name: 'Chẩn đoán hình ảnh tại nhà', icon: 'guidance:mri-pet' },
+    { id: 'Visiting', name: 'Bác sĩ thăm khám tận nhà', icon: 'mdi:doctor' },
   ];
 
   return (
@@ -47,13 +47,13 @@ const MedicalServices = () => {
           
           <div className="lg:col-span-4 space-y-6">
             <span className="px-4 py-1.5 bg-gray-100 text-gray-600 text-xs font-bold rounded-full uppercase tracking-wider">
-              Services
+              DỊCH VỤ
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-blue-950 leading-tight">
-              Bringing Expert Medical Care Directly to Your Doorstep for Faster, Safer Healing — Anytime, Anywhere, Effortlessly, Always Ready
+              Mang dịch vụ chăm sóc y tế chuyên nghiệp trực tiếp đến tận cửa nhà bạn để hồi phục nhanh hơn và an toàn hơn — Mọi lúc, mọi nơi, dễ dàng và luôn sẵn sàng.
             </h2>
             <button className="flex items-center gap-3 bg-[#2B3467] text-white px-6 py-3 rounded-full hover:bg-blue-900 transition-all group">
-              <span className="font-semibold">Explore More</span>
+              <span className="font-semibold">Khám phá thêm</span>
               <div className="bg-white/20 rounded-full p-1 group-hover:translate-x-1 transition-transform">
                 <Icon icon="mdi:arrow-right" />
               </div>
@@ -70,11 +70,11 @@ const MedicalServices = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
               
               <div className="absolute top-6 left-6 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full">
-                <span className="text-xs font-bold text-gray-700">Doctor in Riyadh</span>
+                <span className="text-xs font-bold text-gray-700">Bác sĩ tại địa danh</span>
               </div>
               <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
                 <p className="text-white font-medium text-sm max-w-[180px]">
-                  Trusted home doctor, always available, anywhere.
+                  Bác sĩ gia đình đáng tin cậy, luôn túc trực ở bất cứ đâu.
                 </p>
                 <div className="bg-blue-900 text-white p-2 rounded-full cursor-pointer hover:bg-emerald-500 transition-colors">
                   <Icon icon="mdi:arrow-top-right" width="20" />
@@ -91,12 +91,12 @@ const MedicalServices = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
               <div className="absolute top-6 left-6 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full">
-                <span className="text-xs font-bold text-gray-700">Home Visit Doctor</span>
+                <span className="text-xs font-bold text-gray-700">Bác sĩ thăm khám tận nhà</span>
               </div>
 
               <div className="absolute bottom-6 left-6 right-6">
                 <p className="text-white font-medium text-sm mb-4">
-                  Step into expert medical care — to heal, recover, and thrive.
+                  Tiếp cận dịch vụ chăm sóc y tế chuyên nghiệp — để chữa lành, phục hồi và sống khỏe mạnh.
                 </p>
                 <div className="flex gap-3">
                   <div className="p-2 border border-white/50 rounded-full text-white hover:bg-white hover:text-blue-900 transition-all cursor-pointer">

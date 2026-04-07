@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../Config/api'; // Dùng api.ts để gửi Token
 
 const AppointmentManager: React.FC = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
+
+  // LẤY QUYỀN NGƯỜI DÙNG TỪ KÉT SẮT
+  const userInfoStr = localStorage.getItem('userInfo');
+  const user = userInfoStr ? JSON.parse(userInfoStr) : null;
+  const userRole = user?.role_id || 0; 
 
   useEffect(() => {
     fetchAppointments();
@@ -11,9 +16,9 @@ const AppointmentManager: React.FC = () => {
 
   const fetchAppointments = async () => {
     try {
-    const res = await axios.get('https://xay-dung-phan-mem-web-hs0s.onrender.com/api/services');
-    setAppointments(res.data);
-
+      // ĐÃ SỬA LỖI: Gọi đúng API lịch hẹn, không gọi /services nữa
+      const res = await api.get('/appointments'); 
+      setAppointments(res.data);
     } catch (error) {
       console.error("Lỗi khi tải lịch hẹn:", error);
     }
@@ -21,11 +26,11 @@ const AppointmentManager: React.FC = () => {
 
   const handleConfirm = async (id: number) => {
     try {
-      await axios.put(`https://xay-dung-phan-mem-web-hs0s.onrender.com/api/admin/appointments/${id}`, { status: 'Confirmed' });
+      await api.put(`/admin/appointments/${id}`, { status: 'Confirmed' });
       alert('Đã xác nhận lịch hẹn thành công!');
       fetchAppointments();
     } catch (error) {
-      alert('Lỗi xác nhận lịch hẹn');
+      alert('Lỗi xác nhận lịch hẹn. Vui lòng kiểm tra quyền hoặc kết nối.');
     }
   };
 
@@ -38,7 +43,12 @@ const AppointmentManager: React.FC = () => {
   return (
     <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h2 className="text-2xl font-bold text-slate-800">Quản lý lịch hẹn SmileCare</h2>
+        <h2 className="text-2xl font-bold text-slate-800">
+          📅 Quản lý lịch hẹn SmileCare
+          <span className="ml-3 text-sm font-normal text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+            Góc nhìn: {userRole === 1 ? 'Admin' : userRole === 2 ? 'Bác sĩ' : 'Lễ tân'}
+          </span>
+        </h2>
         <input 
           type="text" 
           placeholder="Tìm tên hoặc số điện thoại..." 
@@ -73,23 +83,47 @@ const AppointmentManager: React.FC = () => {
                       {app.status}
                     </span>
                   </td>
-                  <td className="p-4 text-center">
-                    {app.status === 'Pending' ? (
-                      <button 
-                        onClick={() => handleConfirm(app.appointment_id)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm"
-                      >
-                        Xác nhận
+                  
+                  {/* CỘT THAO TÁC: NƠI PHÉP MÀU PHÂN QUYỀN XUẤT HIỆN */}
+                  <td className="p-4 text-center flex justify-center gap-2">
+                    
+                    {/* QUYỀN CỦA LỄ TÂN (3) VÀ ADMIN (1) */}
+                    {(userRole === 1 || userRole === 3) && app.status === 'Pending' && (
+                      <>
+                        <button onClick={() => handleConfirm(app.appointment_id)} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm transition-colors">
+                          Xác nhận
+                        </button>
+                        <button onClick={() => alert("Chức năng Hủy Lịch đang được Backend xây dựng")} className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm transition-colors">
+                          Hủy
+                        </button>
+                      </>
+                    )}
+
+                    {/* QUYỀN CỦA BÁC SĨ (2) VÀ ADMIN (1) */}
+                    {(userRole === 1 || userRole === 2) && app.status === 'Confirmed' && (
+                      <button onClick={() => alert("Chức năng Tạo Bệnh Án đang được Backend xây dựng")} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm transition-colors">
+                        Bệnh án
                       </button>
-                    ) : (
-                      <span className="text-slate-400 font-semibold text-sm">Đã xử lý</span>
+                    )}
+
+                    {/* QUYỀN ĐỘC TÔN CỦA ADMIN (1) */}
+                    {userRole === 1 && (
+                      <button onClick={() => alert("Chức năng Xóa Vĩnh Viễn đang được Backend xây dựng")} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm transition-colors">
+                        Xóa
+                      </button>
+                    )}
+
+                    {/* Nếu không có nút nào thỏa mãn điều kiện để hiện */}
+                    {app.status === 'Confirmed' && userRole === 3 && (
+                      <span className="text-slate-400 font-semibold text-sm italic">Đã xác nhận</span>
                     )}
                   </td>
+
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-slate-500 italic">Không có dữ liệu lịch hẹn nào phù hợp.</td>
+                <td colSpan={6} className="p-8 text-center text-slate-500 italic">Không có dữ liệu lịch hẹn nào phù hợp hoặc đang tải...</td>
               </tr>
             )}
           </tbody>
