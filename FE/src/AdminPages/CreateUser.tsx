@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../Config/api'; // Dùng api.ts để tự động gắn Token
 
 const CreateUser: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -7,7 +7,8 @@ const CreateUser: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('https://xay-dung-phan-mem-web-hs0s.onrender.com/api/services');
+      // 1. SỬA LỖI Ở ĐÂY: Đổi từ /services sang /users (hoặc theo API mà Backend cung cấp)
+      const res = await api.get('/user'); 
       setUsers(res.data);
     } catch (error) {
       console.error("Lỗi tải danh sách người dùng:", error);
@@ -19,20 +20,29 @@ const CreateUser: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('https://xay-dung-phan-mem-web-hs0s.onrender.com/api/users', formData);
+      // 2. Dùng api.post thay cho axios.post dài dòng
+      await api.post('/user', formData);
       alert('Đã thêm nhân viên mới vào hệ thống!');
       setFormData({ fullname: '', email: '', password: '', role_id: 2 });
       fetchUsers();
-    } catch (error) { alert('Thêm thất bại! Email có thể đã tồn tại.'); }
+    } catch (error: any) { 
+      if (error.response?.status === 400) {
+        alert('Thêm thất bại! Email có thể đã tồn tại hoặc thiếu thông tin.'); 
+      } else {
+        alert('Lỗi khi thêm nhân viên. Vui lòng kiểm tra quyền Admin.');
+      }
+    }
   };
 
   const handleDelete = async (id: number) => {
-    if(window.confirm("Cảnh báo: Xóa nhân viên này khỏi hệ thống SmileCare?")) {
+    if(window.confirm("Cảnh báo: Bạn có chắc chắn muốn xóa nhân viên này khỏi hệ thống SmileCare?")) {
       try {
-        await axios.delete(`https://xay-dung-phan-mem-web-hs0s.onrender.com/api/users/${id}`);
+        // 3. Dùng api.delete
+        await api.delete(`/user/${id}`);
+        alert('Đã xóa nhân viên thành công.');
         fetchUsers();
       } catch (error) {
-        alert('Lỗi khi xóa nhân viên này.');
+        alert('Lỗi khi xóa nhân viên này. Bạn có thể không có quyền.');
       }
     }
   };
