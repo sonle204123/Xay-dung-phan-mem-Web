@@ -36,7 +36,7 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
         });
 
         // 2. Lấy dữ liệu Backend trả về (Bắt buộc Backend phải trả về token và thông tin user)
-        const token = res.data.token; 
+        const token = res.data.access_token; 
         const user = res.data.user; // Chứa thông tin như họ tên, role_id...
         
         // 3. Lưu vào bộ nhớ máy (Két sắt)

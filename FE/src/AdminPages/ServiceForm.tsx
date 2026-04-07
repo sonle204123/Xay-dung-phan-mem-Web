@@ -32,28 +32,40 @@ const ServiceForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Hiện loading nhẹ hoặc log để kiểm tra Token trước khi gửi
+      console.log("Token hiện tại trong máy:", localStorage.getItem("token"));
+
       if (editingId) {
-        // Tạm thời để PUT /services vì API sheet không ghi rõ, nếu báo 404 thì báo lại bạn Backend nhé
         await api.put(`/services/${editingId}`, formData); 
         alert("Đã cập nhật dịch vụ thành công!");
       } else {
         await api.post('/services', formData);
         alert("Đã thêm dịch vụ mới thành công!");
       }
-      // Reset form
-      setFormData({ category_id: categories.length > 0 ? categories[0].category_id : 1, name: '', description: '', min_price: '', status: 'Active' });
+
+      // CHỈ RESET KHI THÀNH CÔNG
       setEditingId(null);
+      setFormData({ 
+        category_id: categories.length > 0 ? categories[0].category_id : 1, 
+        name: '', 
+        description: '', 
+        min_price: '', 
+        status: 'Active' 
+      });
       fetchData();
+      
     } catch (err: any) { 
-      // Bắt lỗi nếu chưa đăng nhập hoặc không có quyền
-      if (err.response?.status === 401 || err.response?.status === 403) {
-        alert("Lỗi: Bạn chưa đăng nhập hoặc không có quyền thêm dịch vụ (Thiếu Token)!");
+      console.error("Chi tiết lỗi API:", err.response); // Xem lỗi thật ở Console
+
+      if (err.response?.status === 401) {
+        alert("Lỗi 401: Thẻ bài (Token) không hợp lệ hoặc đã hết hạn. Hãy Đăng xuất và Đăng nhập lại!");
+      } else if (err.response?.status === 403) {
+        alert("Lỗi 403: Bạn đã đăng nhập, nhưng tài khoản này không có quyền Admin!");
       } else {
-        alert("Có lỗi xảy ra khi lưu dữ liệu!"); 
+        alert(`Lỗi ${err.response?.status || 'mạng'}: Không thể lưu dữ liệu. Hãy kiểm tra kết nối!`); 
       }
     }
   };
-
   const handleEdit = (item: any) => {
     setEditingId(item.service_id);
     setFormData({
