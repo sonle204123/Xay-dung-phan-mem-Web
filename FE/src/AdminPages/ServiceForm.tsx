@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import api from '../Config/api'; // Đường dẫn có thể là ../utils/api tùy bạn đặt
+import api from '../Config/api'; 
 
 const ServiceForm: React.FC = () => {
   const [services, setServices] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]); // Kho chứa danh mục
   
-  // Thêm category_id vào formData, mặc định là 1
   const [formData, setFormData] = useState({ 
     category_id: 1, 
     name: '', 
@@ -15,7 +14,6 @@ const ServiceForm: React.FC = () => {
   });
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  // Lấy cả 2 dữ liệu: Dịch vụ và Danh mục cùng lúc
   const fetchData = async () => {
     try {
       const [resServices, resCategories] = await Promise.all([

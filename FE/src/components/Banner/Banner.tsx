@@ -39,15 +39,15 @@ function Banner() {
 
         <div className="md:w-1/2 text-white pr-6 z-10 relative">
           <h2 className="text-4xl lg:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-down">
-            Dedicated to Long <br /> Term Health and <br /> Well-Being
+            Tận tâm vì Sức khỏe và Hạnh phúc Lâu dài.
           </h2>
 
           <p className="text-sm md:text-base text-blue-100 mb-10 max-w-lg leading-relaxed opacity-90">
-            At Carevia, we provide patient-focused medical care backed by experienced doctors, modern technology, and evidence-based practices.
+            Chúng tôi cung cấp dịch vụ chăm sóc y tế tập trung vào bệnh nhân, được hỗ trợ bởi đội ngũ bác sĩ giàu kinh nghiệm, công nghệ hiện đại và các phương pháp điều trị dựa trên bằng chứng khoa học.
           </p>
 
           <button className="bg-white text-[#1D4ED8] px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition duration-300 shadow-lg transform hover:scale-105 active:scale-95">
-            Get Started Now
+            Bắt đầu ngay
           </button>
         </div>
         <div className="md:w-1/2 relative mt-12 md:mt-0 z-10 flex justify-center md:justify-end items-end h-full">
@@ -72,7 +72,7 @@ function Banner() {
             <Icon icon="mdi:calendar-month" width="28" />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-medium">Dates</p>
+            <p className="text-xs text-gray-500 font-medium">Ngày tháng: (Dates)</p>
             <p className="text-sm font-semibold text-gray-900 tabular-nums">{formatDateTime(currentDateTime)}</p>
           </div>
         </div>
@@ -83,7 +83,7 @@ function Banner() {
             <Icon icon="mdi:doctor" width="28" />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-medium">Specialist</p>
+            <p className="text-xs text-gray-500 font-medium">Chuyên gia: (Specialist)</p>
             <p className="text-sm font-semibold text-gray-900 uppercase">Viet Nam</p>
           </div>
         </div>
@@ -93,7 +93,7 @@ function Banner() {
             <Icon icon="mdi:location-enter" width="28" />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-medium">Location</p>
+            <p className="text-xs text-gray-500 font-medium">Vị trí: (Location)</p>
             <p className="text-sm font-semibold text-gray-900 uppercase">Viet Nam</p>
           </div>
         </div>
