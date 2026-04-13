@@ -37,8 +37,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Tính năng Đặt lịch
-    Route::post('/appointments', [AppointmentController::class, 'store']);
-    Route::get('/my-appointments', [AppointmentController::class, 'myAppointments']);
+    // Lễ tân/Admin sử dụng 
+Route::get('/appointments', [AppointmentController::class, 'index']);
+Route::put('/appointments/{id}/status', [AppointmentController::class, 'updateStatus']);
+Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
+
+// Khách hàng sử dụng
+Route::post('/appointments', [AppointmentController::class, 'store']);
+Route::get('/my-appointments', [AppointmentController::class, 'myAppointments']);
 
     // Quản lý Danh mục & Dịch vụ (Admin)
     Route::post('/categories', [CategoryController::class, 'store']);
@@ -51,11 +57,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Quản lý Khách hàng
     Route::apiResource('customers', CustomerController::class);
-
-   
-});
  // Quản lý nhân sự (Nên để ngoài middleware để Châu test nhanh cho xong đồ án)
 Route::get('/users', [UsersController::class, 'index']);
 Route::post('/users', [UsersController::class, 'store']);
 Route::put('/users/{id}', [UsersController::class, 'update']);
 Route::delete('/users/{id}', [UsersController::class, 'destroy']);
+   
+});
