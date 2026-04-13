@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\HistoryController;
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\UsersController;
 
 // --- CÁC API CÔNG KHAI (KHÔNG CẦN TOKEN ĐỂ TEST) ---
 Route::post('/register', [AuthController::class, 'register']);
@@ -50,4 +51,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Quản lý Khách hàng
     Route::apiResource('customers', CustomerController::class);
+
+   
 });
+ // Quản lý nhân sự (Nên để ngoài middleware để Châu test nhanh cho xong đồ án)
+Route::get('/users', [UsersController::class, 'index']);
+Route::post('/users', [UsersController::class, 'store']);
+Route::put('/users/{id}', [UsersController::class, 'update']);
+Route::delete('/users/{id}', [UsersController::class, 'destroy']);
