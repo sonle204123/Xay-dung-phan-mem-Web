@@ -26,14 +26,18 @@ Route::delete('/schedules/{id}', [ScheduleController::class, 'destroy']);
 Route::post('/histories', [HistoryController::class, 'store']);
 Route::get('/histories/{id}', [HistoryController::class, 'show']);
 Route::get('/histories/customer/{id}', [HistoryController::class, 'getByCustomer']);
-
+// API nhân sự 
+Route::get('/users', [UsersController::class, 'index']);
+Route::post('/users', [UsersController::class, 'store']);
+Route::put('/users/{id}', [UsersController::class, 'update']);
+Route::delete('/users/{id}', [UsersController::class, 'destroy']);
 
 // --- NHÓM API BẮT BUỘC ĐĂNG NHẬP ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Tính năng Đặt lịch
@@ -57,10 +61,7 @@ Route::get('/my-appointments', [AppointmentController::class, 'myAppointments'])
 
     // Quản lý Khách hàng
     Route::apiResource('customers', CustomerController::class);
- // Quản lý nhân sự (Nên để ngoài middleware để Châu test nhanh cho xong đồ án)
-Route::get('/users', [UsersController::class, 'index']);
-Route::post('/users', [UsersController::class, 'store']);
-Route::put('/users/{id}', [UsersController::class, 'update']);
-Route::delete('/users/{id}', [UsersController::class, 'destroy']);
+ // Quản lý nhân sự 
+
    
 });
