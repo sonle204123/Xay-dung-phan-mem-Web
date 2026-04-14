@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Icon } from '@iconify/react';
-
+import Anh1 from "../../assets/anh1.jpg"
+import Anh2 from "../../assets/anh2.jpg"
+// import Anh1 from "../../assets/anh1.jpg"
 const MedicalServices = () => {
   const [activeService, setActiveService] = useState('Dialysis');
 
@@ -63,7 +65,7 @@ const MedicalServices = () => {
             
             <div className="relative h-[350px] rounded-[40px] overflow-hidden shadow-2xl group">
               <img 
-                src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80" 
+                src={Anh1} 
                 alt="Doctor in Riyadh"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -84,7 +86,8 @@ const MedicalServices = () => {
 
             <div className="relative h-[350px] rounded-[40px] overflow-hidden shadow-2xl group">
               <img 
-                src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&w=800&q=80" 
+              src={Anh2}
+                // src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&w=800&q=80" 
                 alt="Home Visit Doctor"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />

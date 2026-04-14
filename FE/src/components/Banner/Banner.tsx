@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import { useState, useEffect } from "react";
-
+import Banner1 from "../../assets/banner1.jpg"
 function Banner() {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   useEffect(() => {
@@ -20,8 +20,8 @@ function Banner() {
       hour12: false,
     });
   };
-  const doctorImageUrl =
-    "https://img.freepik.com/free-photo/handsome-young-doctor-with-stethoscope_144627-26466.jpg?t=st=1723468502~exp=1723472102~hmac=50645c05c58908f623a35a507851e506e76879857d4722883a4f664537703358";
+  // const doctorImageUrl =
+  //   "";
 
   return (
     <div className="bg-white px-4 md:px-16 lg:px-24 py-12">
@@ -51,17 +51,16 @@ function Banner() {
           </button>
         </div>
         <div className="md:w-1/2 relative mt-12 md:mt-0 z-10 flex justify-center md:justify-end items-end h-full">
-          <img src={doctorImageUrl} alt="Doctor" className="w-full max-w-sm md:max-w-md lg:max-w-lg mx-auto md:mx-0 object-contain drop-shadow-2xl" />
+          <img src={Banner1} alt="Doctor" className="w-full max-w-sm md:max-w-md lg:max-w-lg mx-auto md:mx-0 object-contain drop-shadow-2xl" />
 
-          <div className="absolute top-1/4 -right-8 bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center gap-3 border border-white/10 max-w-xs shadow-xl animate-fade-in-right delay-200">
+          <div className="absolute top-1/2 -right-8 bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center gap-3 border border-white/10 max-w-xs shadow-xl animate-fade-in-right delay-200">
             <div className="flex -space-x-4">
               <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="p1" className="w-10 h-10 rounded-full border-2 border-white object-cover" />
               <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="p2" className="w-10 h-10 rounded-full border-2 border-white object-cover" />
-              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="p3" className="w-10 h-10 rounded-full border-2 border-white object-cover" />
               <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white text-[#1D4ED8] text-xs font-bold flex items-center justify-center">5.5k</div>
             </div>
             <div>
-              <p className="text-white text-xs font-semibold leading-tight">Trusted By Happy Patients For Exceptional Care</p>
+              <p className="text-gray-600 text-xs font-semibold leading-tight ">Trusted By Happy Patients For Exceptional Care</p>
             </div>
           </div>
         </div>
