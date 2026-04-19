@@ -64,12 +64,12 @@ Route::get('/my-appointments', [AppointmentController::class, 'myAppointments'])
 
    
 // Quản lý Lịch làm việc
-Route::get('/schedules', [ScheduleController::class, 'index']); // Xem danh sách
-Route::post('/schedules', [ScheduleController::class, 'store']); // Phân lịch
-Route::delete('/schedules/{id}', [ScheduleController::class, 'destroy']); // Xóa lịch
+Route::get('/schedule', [ScheduleController::class, 'index']); // Xem danh sách
+Route::post('/schedule', [ScheduleController::class, 'store']); // Phân lịch
+Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy']); // Xóa lịch
 Route::get('/available-slots', [ScheduleController::class, 'getAvailableSlots']); // Khách xem lịch trống
  // --- API Thanh toán ---
-Route::get('/invoices', [HistoryController::class, 'getPendingInvoices']);
-Route::put('/histories/{id}/pay', [HistoryController::class, 'markAsPaid']);
+Route::get('/invoice', [HistoryController::class, 'getPendingInvoices']);
+Route::put('/history/{id}/pay', [HistoryController::class, 'markAsPaid']);
    
 });
