@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\HistoryController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\UsersController;
+use App\Http\Controllers\Api\InvoiceController;
 
 // --- CÁC API CÔNG KHAI (KHÔNG CẦN TOKEN ĐỂ TEST) ---
 Route::post('/register', [AuthController::class, 'register']);
@@ -38,8 +39,8 @@ Route::post('/schedule', [ScheduleController::class, 'store']); // Phân lịch
 Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy']); // Xóa lịch
 Route::get('/available-slots', [ScheduleController::class, 'getAvailableSlots']); // Khách xem lịch trống
  // --- API Thanh toán ---
-Route::get('/invoice', [HistoryController::class, 'getPendingInvoices']);
-Route::put('/history/{id}/pay', [HistoryController::class, 'markAsPaid']);
+Route::get('/invoice', [InvoiceController::class, 'index']);
+Route::put('/invoice/{id}/pay', [InvoiceController::class, 'updateStatus']);
 // --- NHÓM API BẮT BUỘC ĐĂNG NHẬP ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
