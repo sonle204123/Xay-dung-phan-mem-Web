@@ -104,4 +104,51 @@ class HistoryController extends Controller
             'data' => $history
         ], 200);
     }
+
+    /**
+     * 1. GET /api/invoices: Lễ tân lấy danh sách chờ thanh toán
+     */
+    public function getPendingInvoices()
+    {
+        try {
+            // Lấy các lịch sử khám có trạng thái là 'pending_payment'
+            // Giả sử Châu thêm cột 'payment_status' vào bảng histories
+            $invoices = \App\Models\History::with(['customer', 'user'])
+                ->where('payment_status', 'pending')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $invoices
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * 2. PUT /api/histories/{id}/pay: Xác nhận thanh toán
+     */
+    public function markAsPaid($id)
+    {
+        try {
+            $history = \App\Models\History::find($id);
+
+            if (!$history) {
+                return response()->json(['message' => 'Không tìm thấy hóa đơn'], 404);
+            }
+
+            $history->payment_status = 'paid';
+            $history->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Xác nhận thanh toán thành công!',
+                'data' => $history
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
 }

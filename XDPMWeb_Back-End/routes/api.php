@@ -61,7 +61,15 @@ Route::get('/my-appointments', [AppointmentController::class, 'myAppointments'])
 
     // Quản lý Khách hàng
     Route::apiResource('customers', CustomerController::class);
- // Quản lý nhân sự 
 
+   
+// Quản lý Lịch làm việc
+Route::get('/schedules', [ScheduleController::class, 'index']); // Xem danh sách
+Route::post('/schedules', [ScheduleController::class, 'store']); // Phân lịch
+Route::delete('/schedules/{id}', [ScheduleController::class, 'destroy']); // Xóa lịch
+Route::get('/available-slots', [ScheduleController::class, 'getAvailableSlots']); // Khách xem lịch trống
+ // --- API Thanh toán ---
+Route::get('/invoices', [HistoryController::class, 'getPendingInvoices']);
+Route::put('/histories/{id}/pay', [HistoryController::class, 'markAsPaid']);
    
 });
