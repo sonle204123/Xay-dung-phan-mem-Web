@@ -17,6 +17,7 @@ class AppointmentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+           'fullname' => 'required|string',
             'doctor_id' => 'required|integer',
             'contact_number' => 'required|string|max:20',
             'date' => 'required|date',
@@ -28,7 +29,7 @@ class AppointmentController extends Controller
 
         $appointment = Appointment::create([
             'user_id' => $request->doctor_id, 
-            'fullname' => $patient->fullname, 
+            'fullname' => $request->fullname, 
             'contact_number' => $request->contact_number, 
             'date' => $request->date,
             'time' => $request->time,
