@@ -39,8 +39,8 @@ Route::post('/schedule', [ScheduleController::class, 'store']); // Phân lịch
 Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy']); // Xóa lịch
 Route::get('/available-slots', [ScheduleController::class, 'getAvailableSlots']); // Khách xem lịch trống
  // --- API Thanh toán ---
-Route::get('/invoice', [InvoiceController::class, 'index']);
-Route::put('/invoice/{id}/pay', [InvoiceController::class, 'updateStatus']);
+Route::get('/invoice', [InvoiceController::class, 'index']); // xem danh sách hóa đơn
+Route::put('/invoice/{id}/pay', [InvoiceController::class, 'updateStatus']); // cập nhật trạng thái thanh toán
 // --- NHÓM API BẮT BUỘC ĐĂNG NHẬP ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
@@ -67,6 +67,7 @@ Route::get('/my-appointments', [AppointmentController::class, 'myAppointments'])
     Route::post('/services', [ServiceController::class, 'store']);
     Route::put('/services/{id}', [ServiceController::class, 'update']);
     Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
+    Route::get('/services', [ServiceController::class, 'GetDS']);
 
     // Quản lý Khách hàng
     Route::apiResource('customers', CustomerController::class);

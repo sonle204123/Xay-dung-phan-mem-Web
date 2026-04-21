@@ -48,4 +48,21 @@ class ServiceController extends Controller
         $service->delete();
         return response()->json(['message' => 'Xóa thành công'], 200);
     }
+
+     public function GetDS()
+    {
+        try {
+            $services = Service::all(); // Lấy tất cả dịch vụ trong DB
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $services
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
