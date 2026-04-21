@@ -67,7 +67,9 @@ Route::get('/my-appointments', [AppointmentController::class, 'myAppointments'])
     Route::post('/services', [ServiceController::class, 'store']);
     Route::put('/services/{id}', [ServiceController::class, 'update']);
     Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
-    Route::get('/services', [ServiceController::class, 'GetDS']);
+    Route::get('/services', [ServiceController::class, 'index']);
+    Route::get('/services-with-category', [ServiceController::class, 'GetServicesWithCategory']);
+
 
     // Quản lý Khách hàng
     Route::apiResource('customers', CustomerController::class);
