@@ -1,15 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import api from '../Config/api';
 
+// --- Định nghĩa Interface để tránh lỗi TypeScript ---
+interface Service {
+  service_id: number;
+  name: string;
+  min_price: string;
+  unit: string;
+  category?: { name: string };
+}
+
+interface Patient {
+  customer_id: number;
+  id?: number;
+  fullname: string;
+  contact_number: string;
+}
+
 const DoctorExam: React.FC = () => {
-  const [patients, setPatients] = useState<any[]>([]);
-  const [services, setServices] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<string>('');
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
   const [note, setNote] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Lấy ID bác sĩ từ localStorage
+  // Lấy thông tin bác sĩ từ localStorage
   const userInfoStr = localStorage.getItem('userInfo');
   const currentUser = userInfoStr ? JSON.parse(userInfoStr) : null;
 
@@ -21,14 +37,15 @@ const DoctorExam: React.FC = () => {
           api.get('/services')
         ]);
         
-        // ĐÃ FIX: Lấy đúng mảng data bên trong (res.data.data) để tránh lỗi trắng trang
-        const patientsData = resPatients.data?.status === 'success' ? resPatients.data.data : (Array.isArray(resPatients.data) ? resPatients.data : []);
-        const servicesData = resServices.data?.status === 'success' ? resServices.data.data : (Array.isArray(resServices.data) ? resServices.data : []);
+        // Lấy đúng mảng data bên trong (res.data.data) để tránh lỗi trắng trang
+        const patientsData = resPatients.data?.status === 'success' ? resPatients.data.data : (Array.isArray(resPatients.data) ? resPatients.data : (resPatients.data.data || []));
+        const servicesData = resServices.data?.status === 'success' ? resServices.data.data : (Array.isArray(resServices.data) ? resServices.data : (resServices.data.data || []));
         
-        setPatients(patientsData || []);
-        setServices(servicesData || []);
+        setPatients(Array.isArray(patientsData) ? patientsData : []);
+        setServices(Array.isArray(servicesData) ? servicesData : []);
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
+        alert("Không thể tải danh sách dịch vụ hoặc bệnh nhân!");
         setPatients([]);
         setServices([]);
       }
@@ -36,8 +53,9 @@ const DoctorExam: React.FC = () => {
     loadData();
   }, []);
 
-  // 1. Tính tổng tiền tạm tính dựa trên các dịch vụ đã chọn
+  // Tính tổng tiền tạm tính
   const calculateTotal = () => {
+    if (!Array.isArray(services)) return 0;
     return selectedServices.reduce((sum, serviceId) => {
       const service = services.find(s => s.service_id === serviceId);
       return sum + (service ? parseFloat(service.min_price) : 0);
@@ -51,61 +69,58 @@ const DoctorExam: React.FC = () => {
   };
 
   const handleFinishExam = async () => {
-  if (!selectedPatient || selectedServices.length === 0) {
-    alert("Vui lòng chọn bệnh nhân và ít nhất một dịch vụ!");
-    return;
-  }
+    if (!selectedPatient || selectedServices.length === 0) {
+      alert("Vui lòng chọn bệnh nhân và ít nhất một dịch vụ!");
+      return;
+    }
 
-  const userInfoStr = localStorage.getItem('userInfo');
-  const currentUser = userInfoStr ? JSON.parse(userInfoStr) : null;
+    setLoading(true);
+    try {
+      // Biến đổi mảng ID thành mảng Object theo yêu cầu Backend
+      const formattedServices = selectedServices.map(id => {
+        const serviceInfo = services.find(s => s.service_id === id);
+        return {
+          service_id: id,
+          price: serviceInfo ? parseFloat(serviceInfo.min_price) : 0,
+          quantity: 1
+        };
+      });
 
-  setLoading(true);
-  try {
-    // BIẾN ĐỔI MẢNG ID THÀNH MẢNG OBJECTS THEO YÊU CẦU CỦA BACKEND
-    const formattedServices = selectedServices.map(id => {
-      const serviceInfo = services.find(s => s.service_id === id);
-      return {
-        service_id: id,
-        price: serviceInfo ? parseFloat(serviceInfo.min_price) : 0,
-        quantity: 1 
+      const payload = {
+        customer_id: Number(selectedPatient),
+        user_id: currentUser?.user_id || currentUser?.id,
+        date: new Date().toISOString().split('T')[0],
+        noted: note || "Khám bệnh",
+        services: formattedServices 
       };
-    });
 
-    const payload = {
-      customer_id: Number(selectedPatient),
-      user_id: currentUser?.user_id || currentUser?.id,
-      date: new Date().toISOString().split('T')[0],
-      noted: note || "Khám bệnh",
-      services: formattedServices 
-    };
+      console.log("Payload chuẩn gửi đi:", payload);
 
-    console.log("Payload chuẩn gửi đi:", payload);
-
-    const response = await api.post('/histories', payload);
-    
-    if (response.data?.status === 'success' || response.status === 200 || response.status === 201) {
-      alert("Đã lưu kết quả khám thành công!");
-      // Reset form
-      setNote('');
-      setSelectedServices([]);
-      setSelectedPatient('');
+      const response = await api.post('/histories', payload);
+      
+      if (response.data?.status === 'success' || response.status === 200 || response.status === 201) {
+        alert("🎉 Đã lưu kết quả khám thành công!");
+        // Reset form
+        setNote('');
+        setSelectedServices([]);
+        setSelectedPatient('');
+      }
+    } catch (error: any) {
+      console.error("Lỗi chi tiết từ Server:", error.response?.data);
+      const serverErrors = error.response?.data?.errors || error.response?.data?.message;
+      
+      if (serverErrors) {
+        alert("Lỗi dữ liệu: " + (typeof serverErrors === 'string' ? serverErrors : JSON.stringify(serverErrors)));
+      } else {
+        alert("Có lỗi xảy ra khi lưu bệnh án!");
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (error: any) {
-    console.error("Lỗi chi tiết từ Server:", error.response?.data);
-    const serverErrors = error.response?.data?.errors || error.response?.data?.message;
-    
-    if (serverErrors) {
-      alert("Lỗi dữ liệu: " + (typeof serverErrors === 'string' ? serverErrors : JSON.stringify(serverErrors)));
-    } else {
-      alert("Có lỗi xảy ra khi lưu bệnh án!");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-2">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 bg-slate-50 min-h-screen">
       {/* CỘT TRÁI: THÔNG TIN BỆNH NHÂN */}
       <div className="lg:col-span-1 space-y-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -118,12 +133,13 @@ const DoctorExam: React.FC = () => {
             <select 
               value={selectedPatient}
               onChange={(e) => setSelectedPatient(e.target.value)}
-              className="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-slate-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">-- Chọn bệnh nhân --</option>
-              {/* ĐÃ FIX: Thêm ?.map để an toàn */}
               {Array.isArray(patients) && patients.map(p => (
-                <option key={p.customer_id || p.id} value={p.customer_id || p.id}>{p.fullname} - {p.contact_number}</option>
+                <option key={p.customer_id || p.id} value={p.customer_id || p.id}>
+                  {p.fullname} - {p.contact_number}
+                </option>
               ))}
             </select>
           </div>
@@ -134,7 +150,7 @@ const DoctorExam: React.FC = () => {
               rows={6}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full p-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
+              className="w-full p-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               placeholder="Nhập tình trạng răng miệng..."
             ></textarea>
           </div>
@@ -148,37 +164,40 @@ const DoctorExam: React.FC = () => {
             <span>🦷</span> Chỉ định dịch vụ điều trị
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 overflow-y-auto max-h-[500px] pr-2">
-            {/* ĐÃ FIX: Thêm ?.map để an toàn */}
-            {Array.isArray(services) && services.map(s => (
-              <div 
-                key={s.service_id}
-                onClick={() => toggleService(s.service_id)}
-                className={`p-4 border-2 rounded-2xl cursor-pointer transition-all relative ${
-                  selectedServices.includes(s.service_id) 
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
-                  : 'border-slate-100 hover:border-blue-200 bg-white'
-                }`}
-              >
-                <div className="flex justify-between items-start mb-1">
-                  <span className="font-bold text-slate-800 leading-tight">{s.name}</span>
-                  {selectedServices.includes(s.service_id) && (
-                    <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">✓</span>
-                  )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
+            {Array.isArray(services) && services.length > 0 ? (
+              services.map(s => (
+                <div 
+                  key={s.service_id}
+                  onClick={() => toggleService(s.service_id)}
+                  className={`p-4 border-2 rounded-2xl cursor-pointer transition-all relative ${
+                    selectedServices.includes(s.service_id) 
+                    ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
+                    : 'border-slate-100 hover:border-blue-200 bg-white'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-bold text-slate-800 leading-tight">{s.name}</span>
+                    {selectedServices.includes(s.service_id) && (
+                      <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">✓</span>
+                    )}
+                  </div>
+                  <div className="text-xs text-slate-500 mb-2 uppercase font-semibold">
+                      {s.category?.name || 'Dịch vụ'}
+                  </div>
+                  <div className="flex justify-between items-center mt-auto">
+                      <span className="text-blue-600 font-bold text-lg">
+                          {Number(s.min_price).toLocaleString()}đ
+                      </span>
+                      <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-600 uppercase">
+                          {s.unit}
+                      </span>
+                  </div>
                 </div>
-                <div className="text-xs text-slate-500 mb-2 uppercase font-semibold">
-                   {s.category?.name || 'Dịch vụ'}
-                </div>
-                <div className="flex justify-between items-center mt-auto">
-                    <span className="text-blue-600 font-bold text-lg">
-                        {Number(s.min_price).toLocaleString()}đ
-                    </span>
-                    <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-600 uppercase">
-                        {s.unit}
-                    </span>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-slate-400 italic">Đang tải danh sách dịch vụ...</p>
+            )}
           </div>
 
           {/* TỔNG KẾT & GỬI */}
@@ -197,8 +216,8 @@ const DoctorExam: React.FC = () => {
             <button 
               onClick={handleFinishExam}
               disabled={loading}
-              className={`w-full py-4 rounded-xl font-bold text-white shadow-lg shadow-green-200 transition-all ${
-                loading ? 'bg-slate-400' : 'bg-green-600 hover:bg-green-700 active:scale-[0.98]'
+              className={`w-full py-4 rounded-xl font-bold text-white shadow-lg transition-all ${
+                loading ? 'bg-slate-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 active:scale-[0.98]'
               }`}
             >
               {loading ? "ĐANG XỬ LÝ..." : "HOÀN TẤT KHÁM & XUẤT HÓA ĐƠN"}
