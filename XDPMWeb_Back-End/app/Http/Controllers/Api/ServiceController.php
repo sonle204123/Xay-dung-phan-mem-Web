@@ -11,8 +11,19 @@ class ServiceController extends Controller
     public function index()
     {
         // Lấy dịch vụ kèm tên danh mục của nó
-        return response()->json(Service::with('category')->get(), 200);
-    }
+        try {
+            $services = Service::all(); // Lấy tất cả dịch vụ trong DB
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $services
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
 
     public function store(Request $request)
     {
