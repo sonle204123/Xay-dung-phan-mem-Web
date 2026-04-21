@@ -20,11 +20,17 @@ const DoctorExam: React.FC = () => {
           api.get('/customers'),
           api.get('/services')
         ]);
-        // Giả sử resServices.data trả về mảng như bạn đã cung cấp
-        setPatients(resPatients.data);
-        setServices(resServices.data);
+        
+        // ĐÃ FIX: Lấy đúng mảng data bên trong (res.data.data) để tránh lỗi trắng trang
+        const patientsData = resPatients.data?.status === 'success' ? resPatients.data.data : (Array.isArray(resPatients.data) ? resPatients.data : []);
+        const servicesData = resServices.data?.status === 'success' ? resServices.data.data : (Array.isArray(resServices.data) ? resServices.data : []);
+        
+        setPatients(patientsData || []);
+        setServices(servicesData || []);
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
+        setPatients([]);
+        setServices([]);
       }
     };
     loadData();
@@ -57,28 +63,27 @@ const DoctorExam: React.FC = () => {
   try {
     // BIẾN ĐỔI MẢNG ID THÀNH MẢNG OBJECTS THEO YÊU CẦU CỦA BACKEND
     const formattedServices = selectedServices.map(id => {
-      // Tìm thông tin gốc của dịch vụ để lấy giá (price)
       const serviceInfo = services.find(s => s.service_id === id);
       return {
         service_id: id,
         price: serviceInfo ? parseFloat(serviceInfo.min_price) : 0,
-        quantity: 1 // Mặc định là 1, bạn có thể thêm input chọn số lượng nếu cần
+        quantity: 1 
       };
     });
 
     const payload = {
       customer_id: Number(selectedPatient),
-      user_id: currentUser?.user_id,
+      user_id: currentUser?.user_id || currentUser?.id,
       date: new Date().toISOString().split('T')[0],
       noted: note || "Khám bệnh",
-      services: formattedServices // Gửi mảng đã format: [{service_id, price, quantity}, ...]
+      services: formattedServices 
     };
 
     console.log("Payload chuẩn gửi đi:", payload);
 
     const response = await api.post('/histories', payload);
     
-    if (response.data.status === 'success' || response.status === 200 || response.status === 201) {
+    if (response.data?.status === 'success' || response.status === 200 || response.status === 201) {
       alert("Đã lưu kết quả khám thành công!");
       // Reset form
       setNote('');
@@ -87,11 +92,10 @@ const DoctorExam: React.FC = () => {
     }
   } catch (error: any) {
     console.error("Lỗi chi tiết từ Server:", error.response?.data);
-    const serverErrors = error.response?.data?.errors;
+    const serverErrors = error.response?.data?.errors || error.response?.data?.message;
     
     if (serverErrors) {
-      // Hiển thị lỗi cụ thể nếu vẫn còn thiếu trường
-      alert("Lỗi dữ liệu: " + JSON.stringify(serverErrors));
+      alert("Lỗi dữ liệu: " + (typeof serverErrors === 'string' ? serverErrors : JSON.stringify(serverErrors)));
     } else {
       alert("Có lỗi xảy ra khi lưu bệnh án!");
     }
@@ -117,8 +121,9 @@ const DoctorExam: React.FC = () => {
               className="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">-- Chọn bệnh nhân --</option>
-              {patients.map(p => (
-                <option key={p.customer_id} value={p.customer_id}>{p.fullname} - {p.contact_number}</option>
+              {/* ĐÃ FIX: Thêm ?.map để an toàn */}
+              {Array.isArray(patients) && patients.map(p => (
+                <option key={p.customer_id || p.id} value={p.customer_id || p.id}>{p.fullname} - {p.contact_number}</option>
               ))}
             </select>
           </div>
@@ -144,7 +149,8 @@ const DoctorExam: React.FC = () => {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 overflow-y-auto max-h-[500px] pr-2">
-            {services.map(s => (
+            {/* ĐÃ FIX: Thêm ?.map để an toàn */}
+            {Array.isArray(services) && services.map(s => (
               <div 
                 key={s.service_id}
                 onClick={() => toggleService(s.service_id)}
@@ -180,7 +186,7 @@ const DoctorExam: React.FC = () => {
             <div className="flex justify-between items-center mb-4">
               <div>
                 <p className="text-slate-500 text-sm">Số lượng: <span className="font-bold text-slate-800">{selectedServices.length} mục</span></p>
-                <p className="text-slate-500 text-sm">Bác sĩ: <span className="font-semibold text-slate-700">{currentUser?.fullname}</span></p>
+                <p className="text-slate-500 text-sm">Bác sĩ: <span className="font-semibold text-slate-700">{currentUser?.fullname || 'Chưa cập nhật'}</span></p>
               </div>
               <div className="text-right">
                 <p className="text-slate-600 text-sm font-semibold">Tổng cộng tạm tính:</p>

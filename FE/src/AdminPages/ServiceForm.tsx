@@ -17,16 +17,26 @@ const ServiceForm: React.FC = () => {
   const fetchData = async () => {
     try {
       const [resServices, resCategories] = await Promise.all([
-        api.get('/services'),
+        api.get('/services-with-category'), // SỬA ĐƯỜNG LINK Ở ĐÂY LÀ XONG!
         api.get('/categories')
       ]);
-      setServices(resServices.data);
-      setCategories(resCategories.data);
+      
+      // Xử lý an toàn: Lấy đúng mảng dữ liệu để không bị lỗi map is not a function
+      const servicesData = resServices.data?.data ? resServices.data.data : (Array.isArray(resServices.data) ? resServices.data : []);
+      const categoriesData = resCategories.data?.data ? resCategories.data.data : (Array.isArray(resCategories.data) ? resCategories.data : []);
+
+      setServices(servicesData);
+      setCategories(categoriesData);
+      
+      // Cập nhật lại form default nếu có category
+      if (categoriesData.length > 0) {
+        setFormData(prev => ({ ...prev, category_id: categoriesData[0].category_id }));
+      }
+      
     } catch (error) {
       console.error("Lỗi lấy dữ liệu:", error);
     }
   };
-
   useEffect(() => { fetchData(); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
