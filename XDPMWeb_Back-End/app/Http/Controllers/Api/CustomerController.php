@@ -43,4 +43,34 @@ class CustomerController extends Controller
         $customer->update($request->all());
         return response()->json(['message' => 'Cập nhật thành công', 'data' => $customer], 200);
     }
+
+    
+public function destroy($id)
+{
+    try {
+        $customer = \App\Models\Customer::find($id);
+
+        if (!$customer) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Không tìm thấy bệnh nhân này!'
+            ], 404);
+        }
+
+        // Thực hiện xóa
+        $customer->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Đã xóa hồ sơ bệnh nhân thành công!'
+        ]);
+
+    } catch (\Exception $e) {
+        // Lỗi này thường xảy ra nếu bệnh nhân đã có lịch sử khám (khóa ngoại)
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Không thể xóa vì bệnh nhân này đã có dữ liệu khám bệnh!'
+        ], 500);
+    }
+}
 }
