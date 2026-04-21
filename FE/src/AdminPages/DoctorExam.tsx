@@ -9,6 +9,10 @@ const DoctorExam: React.FC = () => {
   const [note, setNote] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Lấy ID bác sĩ từ localStorage
+  const userInfoStr = localStorage.getItem('userInfo');
+  const currentUser = userInfoStr ? JSON.parse(userInfoStr) : null;
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -16,16 +20,24 @@ const DoctorExam: React.FC = () => {
           api.get('/customers'),
           api.get('/services')
         ]);
+        // Giả sử resServices.data trả về mảng như bạn đã cung cấp
         setPatients(resPatients.data);
         setServices(resServices.data);
       } catch (error) {
-        console.error("Lỗi tải dữ liệu khám bệnh:", error);
+        console.error("Lỗi tải dữ liệu:", error);
       }
     };
     loadData();
   }, []);
 
-  // Xử lý chọn/bỏ chọn dịch vụ (Mảng services gửi lên Backend)
+  // 1. Tính tổng tiền tạm tính dựa trên các dịch vụ đã chọn
+  const calculateTotal = () => {
+    return selectedServices.reduce((sum, serviceId) => {
+      const service = services.find(s => s.service_id === serviceId);
+      return sum + (service ? parseFloat(service.min_price) : 0);
+    }, 0);
+  };
+
   const toggleService = (id: number) => {
     setSelectedServices(prev => 
       prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id]
@@ -33,100 +45,157 @@ const DoctorExam: React.FC = () => {
   };
 
   const handleFinishExam = async () => {
-    if (!selectedPatient || selectedServices.length === 0) {
-      alert("Vui lòng chọn bệnh nhân và ít nhất một dịch vụ!");
-      return;
-    }
+  if (!selectedPatient || selectedServices.length === 0) {
+    alert("Vui lòng chọn bệnh nhân và ít nhất một dịch vụ!");
+    return;
+  }
 
-    setLoading(true);
-    try {
-      // Gọi API: POST /histories
-      const payload = {
-        customer_id: selectedPatient,
-        date: new Date().toISOString().split('T')[0], // Lấy ngày hiện tại YYYY-MM-DD
-        noted: note,
-        services: selectedServices // Mảng ID các dịch vụ bác sĩ đã chỉ định
+  const userInfoStr = localStorage.getItem('userInfo');
+  const currentUser = userInfoStr ? JSON.parse(userInfoStr) : null;
+
+  setLoading(true);
+  try {
+    // BIẾN ĐỔI MẢNG ID THÀNH MẢNG OBJECTS THEO YÊU CẦU CỦA BACKEND
+    const formattedServices = selectedServices.map(id => {
+      // Tìm thông tin gốc của dịch vụ để lấy giá (price)
+      const serviceInfo = services.find(s => s.service_id === id);
+      return {
+        service_id: id,
+        price: serviceInfo ? parseFloat(serviceInfo.min_price) : 0,
+        quantity: 1 // Mặc định là 1, bạn có thể thêm input chọn số lượng nếu cần
       };
+    });
 
-      await api.post('/histories', payload);
-      alert("Đã lưu kết quả khám và tạo hóa đơn thành công!");
-      
-      // Reset trang để khám cho người tiếp theo
+    const payload = {
+      customer_id: Number(selectedPatient),
+      user_id: currentUser?.user_id,
+      date: new Date().toISOString().split('T')[0],
+      noted: note || "Khám bệnh",
+      services: formattedServices // Gửi mảng đã format: [{service_id, price, quantity}, ...]
+    };
+
+    console.log("Payload chuẩn gửi đi:", payload);
+
+    const response = await api.post('/histories', payload);
+    
+    if (response.data.status === 'success' || response.status === 200 || response.status === 201) {
+      alert("Đã lưu kết quả khám thành công!");
+      // Reset form
       setNote('');
       setSelectedServices([]);
       setSelectedPatient('');
-    } catch (error) {
-      alert("Lỗi khi lưu bệnh án. Vui lòng thử lại!");
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error: any) {
+    console.error("Lỗi chi tiết từ Server:", error.response?.data);
+    const serverErrors = error.response?.data?.errors;
+    
+    if (serverErrors) {
+      // Hiển thị lỗi cụ thể nếu vẫn còn thiếu trường
+      alert("Lỗi dữ liệu: " + JSON.stringify(serverErrors));
+    } else {
+      alert("Có lỗi xảy ra khi lưu bệnh án!");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* CỘT TRÁI: CHỌN BỆNH NHÂN & GHI CHÚ */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-2">
+      {/* CỘT TRÁI: THÔNG TIN BỆNH NHÂN */}
       <div className="lg:col-span-1 space-y-6">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-800 mb-4">1. Thông tin buổi khám</h3>
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <h3 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+            <span>👤</span> Thông tin buổi khám
+          </h3>
           
-          <label className="block text-sm font-semibold text-slate-700 mb-2">Chọn bệnh nhân đang khám</label>
-          <select 
-            value={selectedPatient}
-            onChange={(e) => setSelectedPatient(e.target.value)}
-            className="w-full p-3 border border-slate-300 rounded-xl mb-4 bg-white outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">-- Chọn bệnh nhân --</option>
-            {patients.map(p => (
-              <option key={p.customer_id} value={p.customer_id}>{p.fullname} - {p.contact_number}</option>
-            ))}
-          </select>
+          <div className="mb-4">
+            <label className="block text-sm font-bold text-slate-600 mb-2">Bệnh nhân</label>
+            <select 
+              value={selectedPatient}
+              onChange={(e) => setSelectedPatient(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">-- Chọn bệnh nhân --</option>
+              {patients.map(p => (
+                <option key={p.customer_id} value={p.customer_id}>{p.fullname} - {p.contact_number}</option>
+              ))}
+            </select>
+          </div>
 
-          <label className="block text-sm font-semibold text-slate-700 mb-2">Chẩn đoán & Ghi chú</label>
-          <textarea 
-            rows={5}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="w-full p-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
-            placeholder="Nhập tình trạng răng miệng, hướng điều trị..."
-          ></textarea>
+          <div>
+            <label className="block text-sm font-bold text-slate-600 mb-2">Chẩn đoán của Bác sĩ</label>
+            <textarea 
+              rows={6}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              className="w-full p-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
+              placeholder="Nhập tình trạng răng miệng..."
+            ></textarea>
+          </div>
         </div>
       </div>
 
-      {/* CỘT PHẢI: CHỌN DỊCH VỤ ĐÃ THỰC HIỆN */}
-      <div className="lg:col-span-2 space-y-6">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-800 mb-4">2. Chỉ định dịch vụ (Tạo hóa đơn)</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {/* CỘT PHẢI: CHỌN DỊCH VỤ VÀ TÍNH TIỀN */}
+      <div className="lg:col-span-2">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-full flex flex-col">
+          <h3 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+            <span>🦷</span> Chỉ định dịch vụ điều trị
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 overflow-y-auto max-h-[500px] pr-2">
             {services.map(s => (
               <div 
                 key={s.service_id}
                 onClick={() => toggleService(s.service_id)}
-                className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                className={`p-4 border-2 rounded-2xl cursor-pointer transition-all relative ${
                   selectedServices.includes(s.service_id) 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'border-slate-100 hover:border-slate-200'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
+                  : 'border-slate-100 hover:border-blue-200 bg-white'
                 }`}
               >
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-slate-800">{s.name}</span>
-                  {selectedServices.includes(s.service_id) && <span className="text-blue-600">✔</span>}
+                <div className="flex justify-between items-start mb-1">
+                  <span className="font-bold text-slate-800 leading-tight">{s.name}</span>
+                  {selectedServices.includes(s.service_id) && (
+                    <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">✓</span>
+                  )}
                 </div>
-                <div className="text-sm text-blue-700 font-semibold">{Number(s.min_price).toLocaleString()}đ</div>
+                <div className="text-xs text-slate-500 mb-2 uppercase font-semibold">
+                   {s.category?.name || 'Dịch vụ'}
+                </div>
+                <div className="flex justify-between items-center mt-auto">
+                    <span className="text-blue-600 font-bold text-lg">
+                        {Number(s.min_price).toLocaleString()}đ
+                    </span>
+                    <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-600 uppercase">
+                        {s.unit}
+                    </span>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
-            <div>
-              <span className="text-slate-500">Đã chọn:</span>
-              <span className="ml-2 font-bold text-lg text-slate-800">{selectedServices.length} dịch vụ</span>
+          {/* TỔNG KẾT & GỬI */}
+          <div className="mt-6 pt-6 border-t border-slate-200 bg-slate-50 -mx-6 -mb-6 p-6 rounded-b-2xl">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <p className="text-slate-500 text-sm">Số lượng: <span className="font-bold text-slate-800">{selectedServices.length} mục</span></p>
+                <p className="text-slate-500 text-sm">Bác sĩ: <span className="font-semibold text-slate-700">{currentUser?.fullname}</span></p>
+              </div>
+              <div className="text-right">
+                <p className="text-slate-600 text-sm font-semibold">Tổng cộng tạm tính:</p>
+                <p className="text-3xl font-black text-red-600">{calculateTotal().toLocaleString()}đ</p>
+              </div>
             </div>
+            
             <button 
               onClick={handleFinishExam}
               disabled={loading}
-              className={`bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-xl shadow-lg transition-all ${loading ? 'opacity-50' : ''}`}
+              className={`w-full py-4 rounded-xl font-bold text-white shadow-lg shadow-green-200 transition-all ${
+                loading ? 'bg-slate-400' : 'bg-green-600 hover:bg-green-700 active:scale-[0.98]'
+              }`}
             >
-              {loading ? "Đang lưu..." : "HOÀN TẤT & XUẤT HÓA ĐƠN"}
+              {loading ? "ĐANG XỬ LÝ..." : "HOÀN TẤT KHÁM & XUẤT HÓA ĐƠN"}
             </button>
           </div>
         </div>

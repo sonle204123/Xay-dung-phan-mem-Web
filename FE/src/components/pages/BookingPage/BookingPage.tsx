@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
-// Định nghĩa kiểu dữ liệu để TypeScript không báo lỗi
+// --- ĐỊNH NGHĨA KIỂU DỮ LIỆU ---
+
 interface Appointment {
   appointment_id: number;
   fullname: string;
@@ -11,28 +12,60 @@ interface Appointment {
   status: string;
 }
 
+// 1. Sửa interface Service để khớp hoàn toàn với API trả về
+interface Service {
+  service_id: number;
+  category_id: number;
+  image: string | null;
+  name: string;        // Khớp với "name" từ API
+  description: string | null;
+  min_price: string;   // API trả về string "500000.00"
+  max_price: string;
+  unit: string;
+  status: string;
+}
+
 const BookingPage = () => {
-  // 1. Khởi tạo State với đầy đủ các trường BE yêu cầu
   const [formData, setFormData] = useState({
     fullname: "",
     contact_number: "",
-    doctor_id: 1, // Fix lỗi: Luôn có mặc định là 1
+    doctor_id: 1,
+    service_id: "", 
     date: "",
     time: "",
     noted: ""
   });
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [services, setServices] = useState<Service[]>([]); 
   const [loading, setLoading] = useState(false);
   
   const token = localStorage.getItem("token");
-  const API_URL = "https://xay-dung-phan-mem-web-hs0s.onrender.com/appointments";
+  const BASE_URL = "https://xay-dung-phan-mem-web-hs0s.onrender.com";
 
-  // 2. Hàm lấy danh sách lịch hẹn từ Server
+  // 2. Hàm lấy danh sách dịch vụ (Đã tối ưu logic check data)
+  const fetchServices = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/services`, {
+        headers: { "Accept": "application/json" }
+      });
+      const result = await response.json();
+      
+      // Kiểm tra cấu trúc { status: "success", data: [...] }
+      if (result.status === "success" && Array.isArray(result.data)) {
+        setServices(result.data);
+      } else if (Array.isArray(result)) {
+        setServices(result);
+      }
+    } catch (error) {
+      console.error("Lỗi lấy danh sách dịch vụ:", error);
+    }
+  };
+
   const fetchAppointments = async () => {
     if (!token) return;
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${BASE_URL}/appointments`, {
         headers: { 
           "Authorization": `Bearer ${token}`,
           "Accept": "application/json" 
@@ -49,9 +82,9 @@ const BookingPage = () => {
 
   useEffect(() => {
     fetchAppointments();
+    fetchServices();
   }, []);
 
-  // 3. Hàm gửi dữ liệu đặt lịch
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
@@ -61,11 +94,11 @@ const BookingPage = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${BASE_URL}/appointments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json", // Để nhận được lỗi validation chi tiết
+          "Accept": "application/json",
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(formData)
@@ -75,15 +108,12 @@ const BookingPage = () => {
 
       if (response.ok) {
         alert("🎉 Đặt lịch thành công!");
-        // Reset form về trạng thái ban đầu
         setFormData({ 
           fullname: "", contact_number: "", doctor_id: 1, 
-          date: "", time: "", noted: "" 
+          service_id: "", date: "", time: "", noted: "" 
         });
-        fetchAppointments(); // Cập nhật lại danh sách bên cạnh
+        fetchAppointments();
       } else {
-        // Hiển thị lỗi cụ thể từ BE (như lỗi doctor_id lúc nãy)
-        console.error("Lỗi từ BE:", result);
         alert("Lỗi: " + (result.message || "Dữ liệu không hợp lệ"));
       }
     } catch (error) {
@@ -98,7 +128,7 @@ const BookingPage = () => {
     <div className="min-h-screen bg-slate-50 py-12 px-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
         
-        {/* CỘT TRÁI: FORM ĐẶT LỊCH (Chiếm 2 phần) */}
+        {/* FORM ĐẶT LỊCH */}
         <div className="lg:col-span-2 bg-white p-8 rounded-3xl shadow-xl h-fit border border-slate-100">
           <h2 className="text-2xl font-black text-blue-900 mb-6 uppercase tracking-tight">
             Đặt Lịch Khám
@@ -113,6 +143,24 @@ const BookingPage = () => {
                 value={formData.fullname}
                 onChange={(e) => setFormData({...formData, fullname: e.target.value})}
               />
+            </div>
+
+            {/* --- PHẦN CHỌN DỊCH VỤ (ĐÃ FIX) --- */}
+            <div>
+              <label className="text-sm font-bold text-slate-700 ml-1">Chọn Dịch vụ</label>
+              <select 
+                required
+                className="w-full p-3 mt-1 border rounded-xl bg-white outline-none focus:ring-2 focus:ring-blue-500"
+                value={formData.service_id}
+                onChange={(e) => setFormData({...formData, service_id: e.target.value})}
+              >
+                <option value="">-- Vui lòng chọn dịch vụ --</option>
+                {services.map((svc) => (
+                  <option key={svc.service_id} value={svc.service_id}>
+                    {svc.name} - Từ {Number(svc.min_price).toLocaleString()}đ
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -177,7 +225,7 @@ const BookingPage = () => {
           </form>
         </div>
 
-        {/* CỘT PHẢI: DANH SÁCH (Chiếm 3 phần) */}
+        {/* CỘT PHẢI: DANH SÁCH LỊCH HẸN */}
         <div className="lg:col-span-3 bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Lịch Hẹn Hệ Thống</h2>
@@ -218,12 +266,6 @@ const BookingPage = () => {
                 )}
               </div>
             ))}
-
-            {appointments.length === 0 && (
-              <div className="text-center py-20">
-                <p className="text-slate-400 italic">Hiện chưa có lịch hẹn nào trong hệ thống.</p>
-              </div>
-            )}
           </div>
         </div>
 
