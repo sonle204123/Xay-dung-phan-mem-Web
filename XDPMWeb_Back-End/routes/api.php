@@ -17,6 +17,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/services', [ServiceController::class, 'index']);
 
 // Chuyển các route này ra ngoài để Châu test trên Thunder Client cho dễ
 Route::get('/available-slots', [ScheduleController::class, 'getAvailableSlots']);
@@ -67,7 +68,7 @@ Route::get('/my-appointments', [AppointmentController::class, 'myAppointments'])
     Route::post('/services', [ServiceController::class, 'store']);
     Route::put('/services/{id}', [ServiceController::class, 'update']);
     Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
-    Route::get('/services', [ServiceController::class, 'index']);
+    
     Route::get('/services-with-category', [ServiceController::class, 'GetServicesWithCategory']);
 
 
